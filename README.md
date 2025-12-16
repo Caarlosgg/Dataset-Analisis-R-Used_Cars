@@ -101,13 +101,68 @@ Se evaluó la correlación entre las variables numéricas finales para detectar 
     * **Power vs. Engine (0.91):** Existe una redundancia extrema entre la potencia y la cilindrada del motor.
     * **Decisión:** Para evitar inestabilidad en el modelo de regresión, se recomienda eliminar la variable `Engine` y conservar `Power` (que tiene mayor correlación con el precio).
 
----
+. Diseño de Arquitectura de Datos (Modelo Relacional)
+Para transformar este análisis en una solución escalable y productiva, se ha diseñado un Modelo Entidad-Relación (DER) utilizando Draw.io. El objetivo es normalizar el dataset original para eliminar la redundancia de datos y mejorar la integridad de la información en un sistema de inventario comercial.
+
+## 5. Estructura de la Base de Datos:
+El modelo se divide en tres capas lógicas para maximizar la eficiencia:
+
+Tablas de Catálogo (Dimensiones):
+
+T_MARCA: Almacena los fabricantes (ej: Maruti, Audi), permitiendo análisis por marca sin repetir texto.
+
+T_TIPO_PROPIETARIO: Estandariza el historial del vehículo (First, Second, etc.).
+
+T_UBICACION: Catálogo de ciudades para centralizar la gestión geográfica.
+
+Capa Técnica (Especificaciones):
+
+T_MODELO: Es la tabla maestra técnica. Contiene los datos fijos que definen al modelo (Motor, Potencia, Asientos, Transmisión). Al separar esta tabla, evitamos repetir las especificaciones técnicas cada vez que se vende el mismo modelo.
+
+Capa Transaccional (Hechos y Publicación):
+
+T_COCHE: La tabla principal. Representa la unidad física a la venta con sus datos variables (Kilómetros recorridos, Año y el Precio de venta final).
+
+T_PUBLICACION: Una tabla de unión que gestiona la relación Muchos a Muchos entre coches y ubicaciones, permitiendo que un vehículo sea listado en diferentes puntos de venta o portales regionales.
+
+Sentido Comercial del Modelo:
+Esta arquitectura permite que una empresa de compra-venta de vehículos:
+
+Reduzca el almacenamiento: Al no repetir "Hyundai Creta" o "Mumbai" en miles de filas, la base de datos es más ligera.
+
+Análisis Predictivo Regional: Facilita cruzar el precio de T_COCHE con la demanda por ciudad en T_UBICACION.
+
+Mantenimiento Sencillo: Si una marca cambia de nombre o una especificación técnica se corrige, solo se actualiza en un registro y se refleja en todo el sistema.
+
+<img width="1291" height="643" alt="image" src="https://github.com/user-attachments/assets/e2f46522-efec-4f3b-aa64-f087149c8cc0" />
+
 
 ##  Estado Final del Proyecto
 
-El dataset resultante **`df_ai_ready`** contiene:
-1.  Variables limpias y numéricas.
-2.  Transformaciones logarítmicas aplicadas.
-3.  Nuevas características creadas (`Brand`, `Car_Age`, `Transmission` binaria).
+Estado Final del Proyecto y Conclusiones
+El proyecto culmina con la entrega de un ecosistema de datos integral que transita desde la limpieza de datos brutos hasta la propuesta de una arquitectura escalable. A continuación se detallan los pilares alcanzados:
 
-Los datos están listos para la selección definitiva de columnas y para el entrenamiento del modelo de aprendizaje automático.
+1. Preparación de Datos (AI-Ready Dataset)
+El conjunto de datos final, df_ai_ready, ha sido sometido a un proceso de ingeniería de características que garantiza la estabilidad de futuros modelos predictivos:
+
+Normalización Estadística: Mediante la transformación Log_Price, se ha corregido el sesgo de la variable objetivo, permitiendo que algoritmos de regresión lineal cumplan con el supuesto de normalidad de los residuos.
+
+Optimización de Variables: La reducción de dimensionalidad (agrupando tipos de combustible minoritarios) y la gestión de la multicolinealidad (priorizando Power sobre Engine) aseguran un modelo con menor varianza y mayor interpretabilidad.
+
+Enriquecimiento Semántico: La creación de Car_Age y la extracción de Brand convierten datos temporales y textuales en predictores numéricos directos del valor de mercado.
+
+2. Infraestructura y Arquitectura (Data Engineering)
+Más allá del análisis estático, se entrega un diseño relacional en Draw.io que profesionaliza el manejo de la información:
+
+Normalización en 3FN: El paso de un archivo plano (CSV) a un esquema de 6 tablas elimina la redundancia de datos y previene anomalías de actualización.
+
+Escalabilidad Productiva: La estructura está diseñada para integrarse en aplicaciones CRM o plataformas de E-commerce, permitiendo una gestión eficiente de inventarios multizona mediante la tabla de unión T_PUBLICACION.
+
+3. Valor Estratégico para el Negocio
+El análisis realizado permite tomar decisiones basadas en datos (Data-Driven) para:
+
+Optimización de Precios: Identificar el "punto dulce" de venta según la antigüedad y potencia del vehículo.
+
+Segmentación de Inventario: Comprender la dominancia de marcas y transmisiones en el mercado indio para orientar estrategias de adquisición.
+
+Visión Geográfica: Preparar el terreno para análisis de oferta y demanda por ciudades específicas.
